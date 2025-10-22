@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Compiler | Powered by Piston API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      background: #1e293b;
+      width: 100%;
+      padding: 12px;
+      text-align: center;
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .container {
+      max-width: 900px;
+      width: 95%;
+      margin-top: 20px;
+    }
+    select, button {
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+    }
+    select {
+      width: 150px;
+    }
+    button {
+      background: #38bdf8;
+      color: #0f172a;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #0ea5e9;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      background: #1e293b;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.95em;
+    }
+    pre {
+      background: #1e293b;
+      color: #22c55e;
+      border-radius: 6px;
+      padding: 10px;
+      white-space: pre-wrap;
+      min-height: 100px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    .ads {
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      width: 100%;
+      height: 90px;
+      margin: 15px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #64748b;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <header>🌐 Online Multi-Language Compiler</header>
+  <div class="container">
+    <label for="language">Choose Language:</label>
+    <select id="language">
+      <option value="c">C</option>
+      <option value="cpp">C++</option>
+      <option value="python">Python</option>
+      <option value="java">Java</option>
+      <option value="javascript">JavaScript</option>
+    </select>
+    <button id="runBtn">▶ Run Code</button>
+
+    <textarea id="code" placeholder="Write your code here..."></textarea>
+
+    <div class="ads">
+      <!-- 🔹 Paste your Adsterra script below this comment -->
+      Your Adsterra banner here
+    </div>
+
+    <h3>💡 Output:</h3>
+    <pre id="output">Click "Run Code" to execute.</pre>
+  </div>
+
+  <script>
+    const runBtn = document.getElementById('runBtn');
+    const output = document.getElementById('output');
+    const codeBox = document.getElementById('code');
+    const languageSelect = document.getElementById('language');
+
+    runBtn.addEventListener('click', async () => {
+      const language = languageSelect.value;
+      const code = codeBox.value.trim();
+
+      if (!code) {
+        output.textContent = "⚠️ Please write some code first.";
+        return;
+      }
+
+      output.textContent = "⏳ Running your code...";
+
+      try {
+        const response = await fetch("https://tj-piston-api.onrender.com/api/v2/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            language,
+            version: "*",
+            files: [{ name: "main." + (language === "python" ? "py" : language), content: code }]
+          })
+        });
+
+        const data = await response.json();
+        if (data.run && data.run.output) {
+          output.textContent = data.run.output;
+        } else {
+          output.textContent = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        output.textContent = "❌ Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
